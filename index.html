@@ -48,27 +48,29 @@
 
   
 <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDii7-CLlqfkjpKmU6ZYaqV5kHWmVO-RRc",
-  authDomain: "gemeinde-spiel.firebaseapp.com",
-  projectId: "gemeinde-spiel",
-  storageBucket: "gemeinde-spiel.firebasestorage.app",
-  messagingSenderId: "826391377762",
-  appId: "1:826391377762:web:c9431d4186249abca09e3b",
-  measurementId: "G-XJSZSPZZQD"
-};
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDii7-CLlqfkjpKmU6ZYaqV5kHWmVO-RRc",
+    authDomain: "gemeinde-spiel.firebaseapp.com",
+    projectId: "gemeinde-spiel",
+    storageBucket: "gemeinde-spiel.firebasestorage.app",
+    messagingSenderId: "826391377762",
+    appId: "1:826391377762:web:c9431d4186249abca09e3b",
+    measurementId: "G-XJSZSPZZQD"
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
 
 
@@ -122,3 +124,4 @@ function resetGame() {
 </body>
 
 </html>
+
