@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Christliches Werwolf-Spiel</title>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+<style>
+  body { font-family: Arial; text-align:center; padding:20px; background:#fdf6e3; }
+  h1 { color:#2c3e50; }
+  input[type=number]{ width:60px; font-size:1em; text-align:center; margin:5px; }
+  button{ font-size:1.2em; padding:10px 20px; margin:15px; cursor:pointer; border-radius:10px; border:none; background:#3498db; color:white; }
+  button:hover{ background:#2980b9; }
+  #role{ font-size:2em; margin-top:30px; color:#e74c3c; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<h1>Christliches Werwolf-Spiel</h1>
+
+<div id="setup">
+  <h2>Rollen einstellen (Spielleiter)</h2>
+  <div>Pharisäer: <input type="number" id="Pharisäer" min="0" value="2"></div>
+  <div>Schutzengel: <input type="number" id="Schutzengel" min="0" value="1"></div>
+  <div>Engel des Todes: <input type="number" id="Engel des Todes" min="0" value="1"></div>
+  <div>Paulus: <input type="number" id="Paulus" min="0" value="1"></div>
+  <div>Simson: <input type="number" id="Simson" min="0" value="1"></div>
+  <div>Amerikaner: <input type="number" id="Amerikaner" min="0" value="1"></div>
+  <div>Priester: <input type="number" id="Priester" min="0" value="1"></div>
+  <div>Prophet: <input type="number" id="Prophet" min="0" value="1"></div>
+  <div>Pastor: <input type="number" id="Pastor" min="0" value="1"></div>
+  <div>Henoch: <input type="number" id="Henoch" min="0" value="1"></div>
+  <button onclick="startGame()">Spiel starten</button>
+</div>
+
+<div id="game" style="display:none;">
+  <h2>Karte ziehen</h2>
+  <button onclick="drawRole()">Karte ziehen</button>
+  <button onclick="resetGame()">Neues Spiel</button>
+  <div id="role"></div>
+</div>
+
+<script>
+// ==== Firebase konfigurieren ====
+// ERSETZE DIESE CONFIG MIT DEINEM FIREBASE-PROJEKT
+const firebaseConfig = {
+
+  apiKey: "AIzaSyDii7-CLlqfkjpKmU6ZYaqV5kHWmVO-RRc",
+  authDomain: "gemeinde-spiel.firebaseapp.com",
+  projectId: "gemeinde-spiel",
+  storageBucket: "gemeinde-spiel.firebasestorage.app",
+  messagingSenderId: "826391377762",
+  appId: "1:826391377762:web:c9431d4186249abca09e3b",
+  measurementId: "G-XJSZSPZZQD"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ==== Spiel-Logik ====
+function startGame() {
+  const roleNames = ["Pharisäer","Schutzengel","Engel des Todes","Paulus","Simson","Amerikaner","Priester","Prophet","Pastor","Henoch"];
+  let roles = [];
+  roleNames.forEach(name => {
+    let count = parseInt(document.getElementById(name).value);
+    for(let i=0;i<count;i++) roles.push(name);
+  });
+  db.ref('roles').set(roles);
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("game").style.display = "block";
+}
+
+function drawRole() {
+  db.ref('roles').once('value').then(snapshot => {
+    let stored = snapshot.val();
+    if (!stored || stored.length === 0) {
+      document.getElementById("role").innerText = "Alle Rollen sind verteilt!";
+      return;
+    }
+    let index = Math.floor(Math.random() * stored.length);
+    let role = stored[index];
+    document.getElementById("role").innerText = "Deine Rolle: " + role;
+    stored.splice(index,1);
+    db.ref('roles').set(stored);
+  });
+}
+
+function resetGame() {
+  db.ref('roles').remove();
+  document.getElementById("setup").style.display = "block";
+  document.getElementById("game").style.display = "none";
+  document.getElementById("role").innerText = "";
+}
+</script>
+
+</body>
+</html>
