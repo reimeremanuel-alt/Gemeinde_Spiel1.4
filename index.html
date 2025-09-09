@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Christliches Werwolf-Spiel</title>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 <style>
   body { font-family: Arial; text-align:center; padding:20px; background:#fdf6e3; }
   h1 { color:#2c3e50; }
-  input[type=number]{ width:60px; font-size:1em; text-align:center; margin:5px; }
+  input[type=number]{ width:60px; font-size:1em; text-align:center; margin:5px 0; }
   button{ font-size:1.2em; padding:10px 20px; margin:15px; cursor:pointer; border-radius:10px; border:none; background:#3498db; color:white; }
   button:hover{ background:#2980b9; }
   #role{ font-size:2em; margin-top:30px; color:#e74c3c; font-weight:bold; }
@@ -20,7 +18,7 @@
 <h1>Christliches Werwolf-Spiel</h1>
 
 <div id="setup">
-  <h2>Rollen einstellen (Spielleiter)</h2>
+  <h2>Rollen einstellen</h2>
   <div>Pharisäer: <input type="number" id="Pharisäer" min="0" value="2"></div>
   <div>Schutzengel: <input type="number" id="Schutzengel" min="0" value="1"></div>
   <div>Engel des Todes: <input type="number" id="Engel des Todes" min="0" value="1"></div>
@@ -41,87 +39,60 @@
   <div id="role"></div>
 </div>
 
-
-
-
-
-
-  
-<script>
 <script type="module">
-  // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  // ==== Firebase konfigurieren ====
   const firebaseConfig = {
     apiKey: "AIzaSyDii7-CLlqfkjpKmU6ZYaqV5kHWmVO-RRc",
     authDomain: "gemeinde-spiel.firebaseapp.com",
+    databaseURL: "https://gemeinde-spiel-default-rtdb.firebaseio.com",
     projectId: "gemeinde-spiel",
-    storageBucket: "gemeinde-spiel.firebasestorage.app",
+    storageBucket: "gemeinde-spiel.appspot.com",
     messagingSenderId: "826391377762",
     appId: "1:826391377762:web:c9431d4186249abca09e3b",
     measurementId: "G-XJSZSPZZQD"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+  const db = getDatabase(app);
 
+  // ==== Spiel-Logik ====
+  async function startGame() {
+    const roleNames = ["Pharisäer","Schutzengel","Engel des Todes","Paulus","Simson","Amerikaner","Priester","Prophet","Pastor","Henoch"];
+    let roles = [];
+    roleNames.forEach(name => {
+      let count = parseInt(document.getElementById(name).value);
+      for(let i=0;i<count;i++) roles.push(name);
+    });
+    await set(ref(db, 'roles'), roles); // Liste in Firebase speichern
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    document.getElementById("role").innerText = "";
+  }
 
-
-
-
-  
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ==== Spiel-Logik ====
-function startGame() {
-  const roleNames = ["Pharisäer","Schutzengel","Engel des Todes","Paulus","Simson","Amerikaner","Priester","Prophet","Pastor","Henoch"];
-  let roles = [];
-  roleNames.forEach(name => {
-    let count = parseInt(document.getElementById(name).value);
-    for(let i=0;i<count;i++) roles.push(name);
-  });
-  db.ref('roles').set(roles);
-  document.getElementById("setup").style.display = "none";
-  document.getElementById("game").style.display = "block";
-}
-
-function drawRole() {
-  db.ref('roles').once('value').then(snapshot => {
-    let stored = snapshot.val();
-    if (!stored || stored.length === 0) {
+  async function drawRole() {
+    const snapshot = await get(ref(db, 'roles'));
+    let roles = snapshot.val();
+    if (!roles || roles.length === 0) {
       document.getElementById("role").innerText = "Alle Rollen sind verteilt!";
       return;
     }
-    let index = Math.floor(Math.random() * stored.length);
-    let role = stored[index];
+    const index = Math.floor(Math.random() * roles.length);
+    const role = roles[index];
     document.getElementById("role").innerText = "Deine Rolle: " + role;
-    stored.splice(index,1);
-    db.ref('roles').set(stored);
-  });
-}
+    roles.splice(index, 1);
+    await set(ref(db, 'roles'), roles);
+  }
 
-function resetGame() {
-  db.ref('roles').remove();
-  document.getElementById("setup").style.display = "block";
-  document.getElementById("game").style.display = "none";
-  document.getElementById("role").innerText = "";
-}
+  async function resetGame() {
+    await remove(ref(db, 'roles'));
+    document.getElementById("setup").style.display = "block";
+    document.getElementById("game").style.display = "none";
+    document.getElementById("role").innerText = "";
+  }
 </script>
 
 </body>
-
 </html>
-
